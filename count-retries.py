@@ -20,14 +20,17 @@ def get_retries(url):
   lines = urllib.urlopen(url).readlines()
   return filter(lambda line: 'Retrying testcase' in line, lines)
 
+def get_date(timestamp):
+   return datetime.datetime.fromtimestamp(int(timestamp)/1000)
+
 def find_committers(url):
-  job = parse(url, "builds[result,number],displayName")
+  job = parse(url, "builds[result,number,timestamp],displayName")
   builds = job['builds']
 
   for build in builds:
     build_number = build['number']
     console_url = "%s%d/consoleText" % (url, build_number)
-    print '#%d - %s - %s' % (build_number, job['displayName'], build['result'])
+    print '#%d - %s - %s - %s' % (build_number, job['displayName'], get_date(build['timestamp']), build['result'])
     print_if_verbose(console_url)
     retries = get_retries(console_url)
     for retry in retries:
