@@ -21,21 +21,19 @@ def get_retries(url):
   return filter(lambda line: 'Retrying testcase' in line, lines)
 
 def find_committers(url):
-  jobs_in_view = parse(url, "jobs[name,url]")['jobs']
+  builds = parse(url, "builds[result,number]")['builds']
 
-  for job in jobs_in_view:
-    builds = parse(job['url'], "builds[result,number]")['builds']
-
-    for build in builds:
-      build_number = build['number']
-      url = "http://ibuild.intra.dreampark.se:8080/view/Acceptance%%20Tests/job/%s/%d/consoleText" % (job['name'], build_number)
-      print '#%d - %s' % (build_number, build['result'])
-      retries = get_retries(url)
-      for retry in retries:
-        matches = re.search('\[([^\]]+)\] Retrying testcase ([^ ]+)', retry)
-        if matches:
-          print '%s.%s' % (matches.group(1), matches.group(2))
-      print
+  for build in builds:
+    build_number = build['number']
+    console_url = "%s%d/consoleText" % (url, build_number)
+    print '#%d - %s' % (build_number, build['result'])
+    print_if_verbose(console_url)
+    retries = get_retries(console_url)
+    for retry in retries:
+      matches = re.search('\[([^\]]+)\] Retrying testcase ([^ ]+)', retry)
+      if matches:
+        print '%s.%s' % (matches.group(1), matches.group(2))
+    print
 
 
 
