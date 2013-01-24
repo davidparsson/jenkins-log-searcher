@@ -21,12 +21,13 @@ def get_retries(url):
   return filter(lambda line: 'Retrying testcase' in line, lines)
 
 def find_committers(url):
-  builds = parse(url, "builds[result,number]")['builds']
+  job = parse(url, "builds[result,number],displayName")
+  builds = job['builds']
 
   for build in builds:
     build_number = build['number']
     console_url = "%s%d/consoleText" % (url, build_number)
-    print '#%d - %s' % (build_number, build['result'])
+    print '#%d - %s - %s' % (build_number, job['displayName'], build['result'])
     print_if_verbose(console_url)
     retries = get_retries(console_url)
     for retry in retries:
