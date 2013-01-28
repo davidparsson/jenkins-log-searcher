@@ -5,3 +5,15 @@ Usage:
 <pre>
 ./search-logs.py http://url/to/job
 </pre>
+
+Sample output:
+
+<pre>
+#84 - my-jenkins-job - 2013-01-28 10:44:52 - UNSTABLE
+MyTestClass.aTestName
+MyTestClass.aTestName
+MyTestClass.anotherTestName
+
+#83 - my-jenkins-job - 2013-01-28 10:08:14 - SUCCESS
+MyTestClass.aTestName
+</pre>
