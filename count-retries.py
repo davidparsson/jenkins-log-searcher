@@ -6,7 +6,11 @@ import optparse
 import datetime
 import re
 
+SEARCH_PATTERN = '\[([^\]]+)\] Retrying testcase ([^ ]+)'
+PRINT_PATTERN = '%s.%s'
+
 verbose = False
+search_pattern = re.compile(SEARCH_PATTERN)
 
 def parse(url, tree=None):
   if url[-1] != "/":
@@ -16,9 +20,11 @@ def parse(url, tree=None):
     url += "?tree=%s" % tree
   return ast.literal_eval(urllib.urlopen(url).read())
 
-def get_retries(url):
+def get_matched_lines(url):
   lines = urllib.urlopen(url).readlines()
-  return filter(lambda line: 'Retrying testcase' in line, lines)
+  groups_from_lines = map(lambda line: search_pattern.findall(line), lines)
+  matched_lines = filter(lambda line: bool(line), groups_from_lines)
+  return map(lambda line: line[0], matched_lines)
 
 def get_date(timestamp):
    return datetime.datetime.fromtimestamp(int(timestamp)/1000)
@@ -32,11 +38,9 @@ def find_committers(url):
     console_url = "%s%d/consoleText" % (url, build_number)
     print '#%d - %s - %s - %s' % (build_number, job['displayName'], get_date(build['timestamp']), build['result'])
     print_if_verbose(console_url)
-    retries = get_retries(console_url)
-    for retry in retries:
-      matches = re.search('\[([^\]]+)\] Retrying testcase ([^ ]+)', retry)
-      if matches:
-        print '%s.%s' % (matches.group(1), matches.group(2))
+    matched_lines = get_matched_lines(console_url)
+    for matched_line in matched_lines:
+      print '%s.%s' % matched_line
     print
 
 
