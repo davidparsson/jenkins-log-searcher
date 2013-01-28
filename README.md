@@ -1,4 +1,4 @@
-Searches for regex patterns in all logs for a Jenkins job and prints the matches in a formatted output
+Searches for regex patterns in all logs for a Jenkins job and prints the matches in a formatted output.
 
 Usage:
 
